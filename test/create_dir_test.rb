@@ -30,40 +30,20 @@
 #
 # Author: Robert Haines
 
-require 'test/unit'
-require 'zip-container'
+require 'test_helper'
+require 'tmpdir'
 
-class Util
+class TestCreateDir < MiniTest::Test
 
-  include ZipContainer::Util
-end
+  def test_create_container
+    Dir.mktmpdir do |dir|
+      container = File.join(dir, 'empty.container')
 
-class TestUtil < Test::Unit::TestCase
+      ZipContainer::Dir.create(container, TEST_MIMETYPE) do
+        assert File.exist?(File.join(container, 'mimetype'))
+      end
 
-  def setup
-    @util = Util.new
-  end
-
-  def test_entry_name_strings
-    assert_equal('test', @util.entry_name('test'))
-    assert_equal('test', @util.entry_name('test/'))
-    assert_equal('test/test', @util.entry_name('test/test'))
-    assert_equal('test/test', @util.entry_name('test/test/'))
-  end
-
-  def test_entry_name_entries
-    assert_equal('test', @util.entry_name(Zip::Entry.new('fake.zip', 'test')))
-    assert_equal('test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/')))
-    assert_equal(
-      'test/test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/test'))
-    )
-    assert_equal(
-      'test/test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/test/'))
-    )
-  end
-
-  def test_entry_name_odd_things
-    uri = URI.parse('http://www.example.com/path')
-    assert_equal(uri, @util.entry_name(uri))
+      ZipContainer::Dir.verify!(container)
+    end
   end
 end

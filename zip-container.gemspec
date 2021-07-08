@@ -60,8 +60,8 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'coveralls', '~> 0.8'
+  s.add_development_dependency 'minitest', '~> 5.0'
   s.add_development_dependency 'rake', '~> 10.1'
   s.add_development_dependency 'rdoc', '~> 4.1'
   s.add_development_dependency 'rubocop', '~> 0.59'
-  s.add_development_dependency 'test-unit', '~> 3.0'
 end

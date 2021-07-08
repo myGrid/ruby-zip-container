@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2018 The University of Manchester, UK.
+# Copyright (c) 2014 The University of Manchester, UK.
 #
 # All rights reserved.
 #
@@ -30,27 +30,39 @@
 #
 # Author: Robert Haines
 
-require 'bundler/gem_tasks'
-require 'rake/testtask'
-require 'rdoc/task'
-require 'rubocop/rake_task'
+require 'test_helper'
 
-task default: :test
+class Util
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-  t.test_files = FileList['test/**/*_test.rb']
-  t.verbose = true
+  include ZipContainer::Util
 end
 
-RDoc::Task.new do |r|
-  r.main = 'ReadMe.rdoc'
-  lib = Dir.glob('lib/**/*.rb')
-  r.rdoc_files.include('ReadMe.rdoc', 'Licence.rdoc', 'Changes.rdoc', lib)
-  r.options << '-t ZIP Container Format Ruby Library version ' \
-    "#{ZipContainer::Version::STRING}"
-  r.options << '-N'
-  r.options << '--tab-width=2'
-end
+class TestUtil < MiniTest::Test
 
-RuboCop::RakeTask.new
+  def setup
+    @util = Util.new
+  end
+
+  def test_entry_name_strings
+    assert_equal('test', @util.entry_name('test'))
+    assert_equal('test', @util.entry_name('test/'))
+    assert_equal('test/test', @util.entry_name('test/test'))
+    assert_equal('test/test', @util.entry_name('test/test/'))
+  end
+
+  def test_entry_name_entries
+    assert_equal('test', @util.entry_name(Zip::Entry.new('fake.zip', 'test')))
+    assert_equal('test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/')))
+    assert_equal(
+      'test/test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/test'))
+    )
+    assert_equal(
+      'test/test', @util.entry_name(Zip::Entry.new('fake.zip', 'test/test/'))
+    )
+  end
+
+  def test_entry_name_odd_things
+    uri = URI.parse('http://www.example.com/path')
+    assert_equal(uri, @util.entry_name(uri))
+  end
+end
